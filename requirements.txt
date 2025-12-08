@@ -71,3 +71,9 @@ flake8==7.0.0
 # PERFORMANCE MONITORING
 # ----------------------------
 psutil==5.9.8
+
+
+gunicorn==21.2.0
+
+
+
