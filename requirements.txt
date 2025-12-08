@@ -75,6 +75,6 @@ psutil==5.9.8
 
 gunicorn==21.2.0
 yfinance
-
+pinecone-client>=3.0.0
 
 
