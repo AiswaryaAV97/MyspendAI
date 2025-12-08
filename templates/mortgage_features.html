@@ -1,0 +1,100 @@
+<!-- mortgage_features.html (calculator only) -->
+<h2>Mortgage Payment Calculator</h2>
+
+<form id="mortgageForm">
+  <label>Home Price ($)</label>
+  <input type="number" id="price" required>
+
+  <label>Down Payment ($)</label>
+  <input type="number" id="down_payment" required>
+
+  <label>Interest Rate (%)</label>
+  <input type="number" id="rate" step="0.01" required>
+
+  <label>Amortization Period (years)</label>
+  <input type="number" id="years" required>
+
+  <label>City</label>
+  <input type="text" id="city" placeholder="e.g., Toronto">
+
+  <label>Province / Territory</label>
+  <select id="province" required>
+    <option value="">Select province</option>
+    <option value="AB">Alberta</option><option value="BC">British Columbia</option>
+    <option value="MB">Manitoba</option><option value="NB">New Brunswick</option>
+    <option value="NL">Newfoundland and Labrador</option><option value="NS">Nova Scotia</option>
+    <option value="ON">Ontario</option><option value="PE">Prince Edward Island</option>
+    <option value="QC">Quebec</option><option value="SK">Saskatchewan</option>
+    <option value="NT">Northwest Territories</option><option value="NU">Nunavut</option>
+    <option value="YT">Yukon</option>
+  </select>
+
+  <div class="checkbox-row">
+    <label style="width:auto;margin:0;">First-time home buyer</label>
+    <label style="margin-left:12px;"><input type="radio" name="first_time_buyer" value="yes" id="first_time_yes" required> Yes</label>
+    <label style="margin-left:8px;"><input type="radio" name="first_time_buyer" value="no" id="first_time_no"> No</label>
+  </div>
+
+  <button type="submit">Calculate</button>
+</form>
+
+<div class="results-grid" id="resultGrid" aria-live="polite">
+  <div class="result-box"><h4>CMHC fee</h4><div id="cmhc" class="value">—</div></div>
+  <div class="result-box"><h4>Monthly payment</h4><div id="monthly" class="value">—</div></div>
+  <div class="result-box"><h4>Biweekly payment</h4><div id="biweekly" class="value">—</div></div>
+  <div class="result-box"><h4>Provincial LTT</h4><div id="provincial" class="value">—</div></div>
+  <div class="result-box"><h4>Municipal LTT</h4><div id="municipal" class="value">—</div></div>
+  <div class="result-box"><h4>First‑time rebate</h4><div id="rebate" class="value">—</div></div>
+  <div class="result-box total"><h4>Total Land Transfer Tax</h4><div id="totalLtt" class="value">—</div></div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("mortgageForm");
+  const byId = id => document.getElementById(id);
+  const cmhcEl = byId("cmhc"), monthlyEl = byId("monthly"), biweeklyEl = byId("biweekly");
+  const provEl = byId("provincial"), munEl = byId("municipal"), rebateEl = byId("rebate"), totalEl = byId("totalLtt");
+  const fmtMoney = v => (v === undefined || v === null) ? "—" : `$${Number(v).toFixed(2)}`;
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const selected = document.querySelector('input[name="first_time_buyer"]:checked');
+    const data = {
+      action: "calculator",
+      price: Number(byId("price").value),
+      down_payment: Number(byId("down_payment").value),
+      rate: Number(byId("rate").value),
+      years: parseInt(byId("years").value, 10),
+      city: byId("city").value.trim(),
+      province: byId("province").value || "ON",
+      first_time_buyer: selected ? (selected.value === "yes") : false
+    };
+
+    try {
+      const res = await fetch("{{ url_for('mortgage.mortgage_calculate') }}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify(data)
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        totalEl.textContent = json.error || `Request failed (${res.status})`;
+        return;
+      }
+      cmhcEl.textContent = fmtMoney(json.cmhc_fee);
+      monthlyEl.textContent = fmtMoney(json.monthly_payment);
+      biweeklyEl.textContent = fmtMoney(json.biweekly_payment);
+      provEl.textContent = fmtMoney(json.ltt?.provincial);
+      munEl.textContent = fmtMoney(json.ltt?.municipal);
+      rebateEl.textContent = json.ltt ? `-${Number(json.ltt.rebate||0).toFixed(2)}` : "—";
+      totalEl.textContent = fmtMoney(json.ltt?.total);
+    } catch (err) {
+      console.error(err);
+      totalEl.textContent = "Network error. See console.";
+    }
+  });
+});
+</script>
+
+

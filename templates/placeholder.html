@@ -1,0 +1,8 @@
+﻿{% extends "base.html" %}
+{% block content %}
+<div class="card" style="margin: 24px auto;">
+    <h2 style="margin:0 0 8px;">{{ title }}</h2>
+    <p style="color:#6b7280;margin:0 0 16px;">{{ note }}</p>
+    <a href="{{ url_for('dashboard') }}">← Back to dashboard</a>
+</div>
+{% endblock %}

@@ -1,0 +1,11 @@
+Category,monthly,overspend_risk,shap_explanation,anomaly
+Health,2288.56,0.9827728258299964,"Category_enc: -0.01, Amount: -0.49, Income: 0.00",Normal
+Housing,2838.62,0.9827728258299964,"Category_enc: -0.01, Amount: -0.49, Income: 0.00",Normal
+Food,2340.65,0.9827728258299964,"Category_enc: -0.01, Amount: -0.49, Income: 0.00",Normal
+Entertainment,2409.55,0.9827728258299964,"Category_enc: -0.01, Amount: -0.49, Income: 0.00",Normal
+Entertainment,2548.34,0.9827728258299964,"Category_enc: -0.01, Amount: -0.49, Income: 0.00",Normal
+Entertainment,2960.05,0.9827728258299964,"Category_enc: -0.01, Amount: -0.49, Income: 0.00",Outlier
+Transportation,2619.47,0.9827728258299964,"Category_enc: -0.00, Amount: -0.50, Income: 0.00",Normal
+Health,2313.88,0.9827728258299964,"Category_enc: -0.01, Amount: -0.49, Income: 0.00",Normal
+Miscellaneous,5850.0,0.9827728258299964,"Category_enc: 0.02, Amount: -0.53, Income: 0.00",Outlier
+Health,2699.23,0.9827728258299964,"Category_enc: -0.01, Amount: -0.49, Income: 0.00",Normal

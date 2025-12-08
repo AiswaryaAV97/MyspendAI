@@ -1,0 +1,772 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>SmartSpendAI – Retirement Planner</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Plotly for charts -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #7dd3fc, #a5b4fc, #c4b5fd);
+            --card-bg: #ffffff;
+            --card-radius: 26px;
+            --primary: #2563eb;
+            --primary-alt: #1d4ed8;
+            --accent: #10b981;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --border-soft: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: var(--bg-gradient);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .page-wrapper {
+            width: 100%;
+            max-width: 1200px;
+            margin: 32px auto;
+            padding: 0 16px;
+        }
+
+        .planner-card {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            padding: 32px 36px 28px 36px;
+            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
+        }
+
+        /* ===== HEADER (title left, dashboard right) ===== */
+        .planner-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .planner-header-main {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .planner-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0;
+        }
+
+        .planner-subtitle {
+            margin-top: 4px;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .emoji-title {
+            font-size: 1.8rem;
+            margin-right: 6px;
+        }
+
+        .dashboard-link {
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            color: #374151;
+            font-weight: 500;
+            transition: .15s transform, .15s opacity;
+        }
+
+            .dashboard-link:hover {
+                opacity: .96;
+                transform: translateY(-1px);
+            }
+
+        @media (max-width: 768px) {
+            .planner-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+        }
+
+        .planner-body {
+            display: grid;
+            grid-template-columns: 1.2fr 1.0fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 960px) {
+            .planner-body {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .section-block {
+            border-radius: 18px;
+            border: 1px solid var(--border-soft);
+            padding: 18px 18px 16px 18px;
+            background: #ffffff;
+        }
+
+        .section-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin: 0 0 4px 0;
+        }
+
+        .section-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .form-row-2 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        input[type="number"],
+        input[type="text"],
+        select {
+            border-radius: 12px;
+            border: 1px solid var(--border-soft);
+            padding: 8px 10px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            color: var(--text-main);
+            outline: none;
+        }
+
+            input[type="number"]:focus,
+            input[type="text"]:focus,
+            select:focus {
+                border-color: var(--primary);
+                box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+            }
+
+        input[type="range"] {
+            width: 100%;
+        }
+
+        .slider-labels {
+            font-size: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-muted);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .summary-card {
+            border-radius: 14px;
+            border: 1px solid var(--border-soft);
+            padding: 10px 12px;
+            background: #f9fafb;
+        }
+
+        .summary-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 4px;
+        }
+
+        .summary-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .summary-help {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .risk-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--border-soft);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            gap: 4px;
+        }
+
+        .risk-pill-strong {
+            border-color: rgba(16, 185, 129, 0.7);
+            background: rgba(16, 185, 129, 0.05);
+            color: #047857;
+        }
+
+        .message-box {
+            border-radius: 12px;
+            border: 1px dashed var(--border-soft);
+            padding: 9px 10px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 10px;
+        }
+
+        .message-accent {
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .button-row {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-alt));
+            border-radius: 999px;
+            padding: 10px 22px;
+            border: none;
+            color: white;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            box-shadow: 0 12px 25px rgba(37, 99, 235, 0.3);
+        }
+
+            .btn-primary:hover {
+                filter: brightness(0.97);
+            }
+
+        .btn-secondary {
+            border-radius: 999px;
+            padding: 9px 18px;
+            border: none;
+            background: #111827;
+            color: #f9fafb;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+            .btn-secondary:hover {
+                filter: brightness(1.05);
+            }
+
+        .loading {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-left: 8px;
+        }
+
+        .chart-section {
+            margin-top: 18px;
+            border-radius: 18px;
+            border: 1px solid var(--border-soft);
+            padding: 14px 16px;
+            background: #ffffff;
+        }
+
+        .chart-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .chart-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        #incomeChart, #balanceChart {
+            width: 100%;
+            height: 260px;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <div class="planner-card">
+            <!-- Header -->
+            <div class="planner-header">
+                <div class="planner-header-main">
+                    <h1 class="planner-title">
+                        <span class="emoji-title">🧓</span>Retirement Planner
+                    </h1>
+                    <div class="planner-subtitle">
+                        Logged in as <strong>{{ current_user }}</strong>
+                    </div>
+                </div>
+
+                <a href="{{ url_for('dashboard') }}" class="dashboard-link">🏠 Dashboard</a>
+            </div>
+
+            <!-- Body -->
+            <div class="planner-body">
+                <!-- LEFT: Inputs -->
+                <div class="section-block">
+                    <div class="section-title">Your Retirement Profile</div>
+                    <div class="section-subtitle">
+                        Enter your details and SmartSpendAI will simulate CPP, OAS, GIS, and savings growth.
+                    </div>
+
+                    <form id="retirementForm">
+                        <!-- BASIC SECTION -->
+                        <div class="section-subtitle" style="margin-bottom:6px;">
+                            Basic details
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Current Age</label>
+                                <input type="number" id="currentAge" value="25" min="18" />
+                            </div>
+                            <div class="form-group">
+                                <label>Retirement Age</label>
+                                <input type="number" id="retireAge" value="65" min="40" />
+                            </div>
+                            <div class="form-group">
+                                <label>Life Expectancy</label>
+                                <input type="number" id="lifeExpectancy" value="90" min="60" />
+                            </div>
+                        </div>
+
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label>Annual Income ($)</label>
+                                <input type="number" id="currentAnnualIncome" value="55000" />
+                            </div>
+                            <div class="form-group">
+                                <label>Risk Tolerance (1–5)</label>
+                                <input type="range" id="riskTolerance" min="1" max="5" step="1" value="3" />
+                                <div class="slider-labels">
+                                    <span>1 • Very Safe</span>
+                                    <span>3 • Balanced</span>
+                                    <span>5 • Aggressive</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="section-subtitle" style="margin-top:8px;margin-bottom:4px;">
+                            Monthly contributions (current plan)
+                        </div>
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label>RRSP / month ($)</label>
+                                <input type="number" id="rrspMonthlyContribution" value="150" />
+                            </div>
+                            <div class="form-group">
+                                <label>TFSA / month ($)</label>
+                                <input type="number" id="tfsaMonthlyContribution" value="100" />
+                            </div>
+                        </div>
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label>FHSA / month ($)</label>
+                                <input type="number" id="fhsaMonthlyContribution" value="50" />
+                            </div>
+                            <div class="form-group">
+                                <label>Non-Registered / month ($)</label>
+                                <input type="number" id="nonRegisteredMonthlyContribution" value="0" />
+                            </div>
+                        </div>
+
+                        <div class="section-subtitle" style="margin-top:8px;margin-bottom:4px;">
+                            Current savings (optional, starting balances)
+                        </div>
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label>RRSP balance ($)</label>
+                                <input type="number" id="rrspBalance" value="0" />
+                            </div>
+                            <div class="form-group">
+                                <label>TFSA balance ($)</label>
+                                <input type="number" id="tfsaBalance" value="0" />
+                            </div>
+                        </div>
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label>FHSA balance ($)</label>
+                                <input type="number" id="fhsaBalance" value="0" />
+                            </div>
+                            <div class="form-group">
+                                <label>Non-Registered balance ($)</label>
+                                <input type="number" id="nonRegisteredBalance" value="0" />
+                            </div>
+                        </div>
+
+                        <div class="section-subtitle" style="margin-top:8px;margin-bottom:4px;">
+                            Government benefits (rough eligibility)
+                        </div>
+                        <div class="form-row-2">
+                            <div class="form-group">
+                                <label>CPP – Are you contributing?</label>
+                                <select id="cppContributing">
+                                    <option value="yes" selected>Yes</option>
+                                    <option value="no">No / Not sure</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>OAS – Expect to qualify?</label>
+                                <select id="oasEligible">
+                                    <option value="yes" selected>Yes</option>
+                                    <option value="no">No / Not sure</option>
+                                </select>
+                            </div>
+                            <div class="form-row-2">
+                                <div class="form-group">
+                                    <label>GIS – low-income senior benefit?</label>
+                                    <select id="gisEligible">
+                                        <option value="no" selected>No</option>
+                                        <option value="yes">Yes / Likely</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr style="border:none;border-top:1px solid #e5e7eb;margin:12px 0;" />
+
+                        <!-- ADVANCED SETTINGS TOGGLE -->
+                        <div class="section-subtitle" style="display:flex;justify-content:space-between;align-items:center;">
+                            <span>Advanced settings (optional)</span>
+                            <button type="button" id="toggleAdvancedBtn"
+                                    style="border:none;background:none;color:#2563eb;font-size:0.85rem;cursor:pointer;">
+                                Show ▼
+                            </button>
+                        </div>
+
+                        <!-- ADVANCED SETTINGS PANEL -->
+                        <div id="advancedSettings" style="display:none; margin-top:6px;">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Income Growth % (default 2%)</label>
+                                    <input type="number" id="incomeGrowthRate" value="2" step="0.1" />
+                                </div>
+                                <div class="form-group">
+                                    <label>Inflation % (default 2%)</label>
+                                    <input type="number" id="inflationRate" value="2" step="0.1" />
+                                </div>
+                                <div class="form-group">
+                                    <label>Target % of Final Pay (default 70%)</label>
+                                    <input type="number" id="targetReplacementRate" value="70" step="1" />
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Expected Return % (override ML – leave blank to let AI pick)</label>
+                                <input type="number" id="expectedReturnRate" placeholder="e.g. 6 for 6%" step="0.1" />
+                            </div>
+                        </div>
+
+                        <!-- BUTTON ROW -->
+                        <div class="button-row">
+                            <span id="loadingText" class="loading" style="display:none;">Calculating plan…</span>
+                            <!-- Only Generate Plan button now; Dashboard is in header -->
+                            <button type="submit" class="btn-primary">
+                                Generate Plan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- RIGHT: Summary -->
+                <div class="section-block">
+                    <div class="section-title">Plan Summary</div>
+                    <div class="section-subtitle">
+                        Coverage of your retirement target, risk profile, and suggested monthly savings.
+                    </div>
+
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                        <div class="risk-pill" id="riskProfilePill">
+                            Risk profile: <strong id="riskProfileLabel">–</strong>
+                        </div>
+                    </div>
+
+                    <div class="summary-grid">
+                        <div class="summary-card">
+                            <div class="summary-label">Coverage (current)</div>
+                            <div class="summary-value" id="coverageCurrent">–</div>
+                            <div class="summary-help">of target income</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Monthly now</div>
+                            <div class="summary-value" id="monthlyCurrent">–</div>
+                            <div class="summary-help">your current contributions</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Monthly needed</div>
+                            <div class="summary-value" id="monthlyRequired">–</div>
+                            <div class="summary-help">to reach 100% target</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Return used</div>
+                            <div class="summary-value" id="returnUsed">–</div>
+                            <div class="summary-help">ML or override</div>
+                        </div>
+                    </div>
+
+                    <div class="message-box" id="messageBox">
+                        <span class="message-accent">Tip:</span>
+                        Fill your details and click <strong>Generate Plan</strong> to see if you’re on track.
+                    </div>
+
+                    <div class="chart-section">
+                        <div class="chart-title">Retirement Income Trend</div>
+                        <div class="chart-subtitle">
+                            CPP, OAS, GIS and portfolio withdrawals over your retirement years.
+                        </div>
+                        <div id="incomeChart"></div>
+                    </div>
+
+                    <div class="chart-section" style="margin-top:12px;">
+                        <div class="chart-title">Portfolio Growth</div>
+                        <div class="chart-subtitle">
+                            Combined RRSP, TFSA, FHSA, and non-registered balances over time.
+                        </div>
+                        <div id="balanceChart"></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById("retirementForm");
+        const loadingText = document.getElementById("loadingText");
+        const riskProfileLabel = document.getElementById("riskProfileLabel");
+        const riskProfilePill = document.getElementById("riskProfilePill");
+        const coverageCurrentEl = document.getElementById("coverageCurrent");
+        const monthlyCurrentEl = document.getElementById("monthlyCurrent");
+        const monthlyRequiredEl = document.getElementById("monthlyRequired");
+        const returnUsedEl = document.getElementById("returnUsed");
+        const messageBox = document.getElementById("messageBox");
+
+        // Advanced settings toggle
+        const advPanel = document.getElementById("advancedSettings");
+        const advBtn = document.getElementById("toggleAdvancedBtn");
+
+        advBtn.addEventListener("click", () => {
+            const visible = advPanel.style.display === "block";
+            advPanel.style.display = visible ? "none" : "block";
+            advBtn.textContent = visible ? "Show ▼" : "Hide ▲";
+        });
+
+        function showLoading(show) {
+            loadingText.style.display = show ? "inline-block" : "none";
+        }
+
+        function formatCurrency(value) {
+            if (value === null || value === undefined || isNaN(value)) return "–";
+            return "$" + Number(value).toLocaleString(undefined, { maximumFractionDigits: 0 });
+        }
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            showLoading(true);
+
+            const rrspM = Number(document.getElementById("rrspMonthlyContribution").value || 0);
+            const tfsaM = Number(document.getElementById("tfsaMonthlyContribution").value || 0);
+            const fhsaM = Number(document.getElementById("fhsaMonthlyContribution").value || 0);
+            const nonRegM = Number(document.getElementById("nonRegisteredMonthlyContribution").value || 0);
+            const totalMonthly = rrspM + tfsaM + fhsaM + nonRegM;
+
+            const payload = {
+                currentAge: Number(document.getElementById("currentAge").value),
+                retireAge: Number(document.getElementById("retireAge").value),
+                lifeExpectancy: Number(document.getElementById("lifeExpectancy").value || 90),
+
+                currentAnnualIncome: Number(document.getElementById("currentAnnualIncome").value),
+
+                // Advanced – convert % to decimal, use defaults if empty
+                expectedIncomeGrowthRate: (Number(document.getElementById("incomeGrowthRate").value || 2) / 100),
+                inflationRate: (Number(document.getElementById("inflationRate").value || 2) / 100),
+                targetReplacementRate: (Number(document.getElementById("targetReplacementRate").value || 70) / 100),
+
+                // Balances
+                rrspBalance: Number(document.getElementById("rrspBalance").value || 0),
+                tfsaBalance: Number(document.getElementById("tfsaBalance").value || 0),
+                fhsaBalance: Number(document.getElementById("fhsaBalance").value || 0),
+                nonRegisteredBalance: Number(document.getElementById("nonRegisteredBalance").value || 0),
+
+                // Monthly contributions
+                rrspMonthlyContribution: rrspM,
+                tfsaMonthlyContribution: tfsaM,
+                fhsaMonthlyContribution: fhsaM,
+                nonRegisteredMonthlyContribution: nonRegM,
+
+                riskTolerance: Number(document.getElementById("riskTolerance").value),
+
+                cppContributing: document.getElementById("cppContributing").value === "yes",
+                oasEligible: document.getElementById("oasEligible").value === "yes",
+            };
+
+            const expOverride = document.getElementById("expectedReturnRate").value;
+            if (expOverride !== "") {
+                payload.expectedReturnRate = Number(expOverride) / 100;  // 6 -> 0.06
+            }
+
+            try {
+                const res = await fetch("/retirementPlan", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
+
+                const data = await res.json();
+
+                if (!data.success) {
+                    messageBox.textContent = data.error || "Something went wrong. Please check your inputs.";
+                    return;
+                }
+
+                // Summary numbers
+                riskProfileLabel.textContent = data.riskProfile || "–";
+
+                const cov = data.currentPlan.coverageRatio ?? null;
+                coverageCurrentEl.textContent = cov !== null
+                    ? (cov * 100).toFixed(0) + "%"
+                    : "–";
+
+                if (cov !== null && cov >= 1) {
+                    riskProfilePill.classList.add("risk-pill-strong");
+                } else {
+                    riskProfilePill.classList.remove("risk-pill-strong");
+                }
+
+                monthlyCurrentEl.textContent = formatCurrency(data.currentPlan.totalMonthlyContribution);
+                monthlyRequiredEl.textContent = formatCurrency(
+                    data.recommendedPlan.requiredTotalMonthlyContribution
+                );
+
+                returnUsedEl.textContent = data.expectedReturnRateUsed
+                    ? (data.expectedReturnRateUsed * 100).toFixed(1) + "%"
+                    : "–";
+
+                if (data.message) {
+                    messageBox.innerHTML = `<span class="message-accent">Result:</span> ${data.message}`;
+                }
+
+                // Charts
+                drawIncomeChart(data.currentPlan.series);
+                drawBalanceChart(data.currentPlan.series);
+
+            } catch (err) {
+                console.error(err);
+                messageBox.textContent = "Error connecting to server. Please try again.";
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        function drawIncomeChart(series) {
+            if (!Array.isArray(series) || series.length === 0) return;
+
+            const ages = series.map(s => s.age);
+            const cppOasGis = series.map(
+                s => (s.cppAnnual || 0) + (s.oasAnnual || 0) + (s.gisAnnual || 0)
+            );
+            const withdrawals = series.map(s => {
+                const gov = (s.cppAnnual || 0) + (s.oasAnnual || 0) + (s.gisAnnual || 0);
+                return (s.totalRetirementIncomeNominal || 0) - gov;
+            });
+
+            const traceGov = { x: ages, y: cppOasGis, type: "bar", name: "CPP + OAS + GIS" };
+            const traceWithdraw = { x: ages, y: withdrawals, type: "bar", name: "Portfolio Withdrawals" };
+
+            const layout = {
+                barmode: "stack",
+                margin: { t: 20, r: 10, b: 40, l: 45 },
+                paper_bgcolor: "#ffffff",
+                plot_bgcolor: "#ffffff",
+                font: { color: "#111827", size: 11 },
+                xaxis: { title: "Age" },
+                yaxis: { title: "Annual Income (Nominal $)" },
+            };
+
+            Plotly.newPlot("incomeChart", [traceGov, traceWithdraw], layout, { displayModeBar: false });
+        }
+
+        function drawBalanceChart(series) {
+            if (!Array.isArray(series) || series.length === 0) return;
+
+            const ages = series.map(s => s.age);
+            const total = series.map(
+                s => (s.rrsp || 0) + (s.tfsa || 0) + (s.fhsa || 0) + (s.nonRegistered || 0)
+            );
+
+            const traceTotal = {
+                x: ages,
+                y: total,
+                type: "scatter",
+                mode: "lines",
+                name: "Total Portfolio",
+            };
+
+            const layout = {
+                margin: { t: 20, r: 10, b: 40, l: 45 },
+                paper_bgcolor: "#ffffff",
+                plot_bgcolor: "#ffffff",
+                font: { color: "#111827", size: 11 },
+                xaxis: { title: "Age" },
+                yaxis: { title: "Portfolio Value (Nominal $)" },
+            };
+
+            Plotly.newPlot("balanceChart", [traceTotal], layout, { displayModeBar: false });
+        }
+    </script>
+</body>
+</html>

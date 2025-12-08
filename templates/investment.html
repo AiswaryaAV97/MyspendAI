@@ -1,0 +1,233 @@
+﻿{% extends "base.html" %}
+{% block content %}
+<style>
+    .shell {
+        width: min(1100px, 96vw);
+        margin: 32px auto;
+    }
+
+    /* HEADER FIX — Added missing .page-top class */
+    .page-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        gap: 12px;
+    }
+
+    .page-top-main h1 {
+        margin: 0 0 4px;
+        font-size: 22px;
+    }
+
+    .page-top-main p {
+        margin: 0;
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+    .dashboard-link {
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        background: #ffffff;
+        border: 1px solid #d1d5db;
+        color: #374151;
+        font-weight: 500;
+        transition: .15s transform, .15s opacity;
+        white-space: nowrap;
+    }
+
+    .dashboard-link:hover {
+        opacity: .96;
+        transform: translateY(-1px);
+    }
+
+    @media (max-width: 768px) {
+        .page-top {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+
+    .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+    }
+
+    .field {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        font-size: 13px;
+    }
+
+    .field label {
+        font-weight: 500;
+        color: #374151;
+    }
+
+    .field input,
+    .field select {
+        border-radius: 10px;
+        border: 1px solid #d1d5db;
+        padding: 8px 10px;
+        font-size: 13px;
+        outline: none;
+    }
+
+    .field input:focus,
+    .field select:focus {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.25);
+    }
+
+    .radio-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        font-size: 13px;
+    }
+
+    .radio-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid #d1d5db;
+        cursor: pointer;
+    }
+
+    .submit-row {
+        margin-top: 20px;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .btn-primary {
+        border: none;
+        border-radius: 999px;
+        padding: 9px 18px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        background: linear-gradient(135deg,#4f46e5,#06b6d4);
+        color: #fff;
+        box-shadow: 0 10px 25px rgba(15,23,42,.25);
+    }
+
+    .btn-primary:hover {
+        opacity: .95;
+        transform: translateY(-1px);
+    }
+</style>
+
+<div class="shell">
+
+    <!-- HEADER -->
+    <div class="page-top">
+        <div class="page-top-main">
+            <h1>📈 Investment Planner</h1>
+            <p>Logged in as <strong>{{ session.user }}</strong></p>
+        </div>
+
+        <a href="{{ url_for('dashboard') }}" class="dashboard-link">🏠 Dashboard</a>
+    </div>
+
+    <form method="post" action="{{ url_for('investment.investment_planner') }}">
+        <div class="grid-2">
+            <div class="field">
+                <label for="investment_amount">Total investment amount ($)</label>
+                <input type="number" step="0.01" min="0" id="investment_amount" name="investment_amount" required>
+            </div>
+
+            <div class="field">
+                <label for="fhsa_contrib">FHSA contributions to date ($)</label>
+                <input type="number" step="0.01" min="0" id="fhsa_contrib" name="fhsa_contrib" value="0">
+            </div>
+
+            <div class="field">
+                <label>Home-buying plan (within horizon)?</label>
+                <div class="radio-row">
+                    <label class="radio-pill">
+                        <input type="radio" name="home_plan" value="yes"> Yes
+                    </label>
+                    <label class="radio-pill">
+                        <input type="radio" name="home_plan" value="no" checked> No
+                    </label>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Risk preference</label>
+                <div class="radio-row">
+                    <label class="radio-pill">
+                        <input type="radio" name="risk_pref" value="low"> Low
+                    </label>
+                    <label class="radio-pill">
+                        <input type="radio" name="risk_pref" value="medium" checked> Medium
+                    </label>
+                    <label class="radio-pill">
+                        <input type="radio" name="risk_pref" value="high"> High
+                    </label>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="horizon">Investment horizon</label>
+                <div style="display:flex; gap:8px;">
+                    <input type="number" min="1" id="horizon" name="horizon" value="5">
+                    <select id="horizon_unit" name="horizon_unit">
+                        <option value="years" selected>Years</option>
+                        <option value="months">Months</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="portfolio_type">Primary account type</label>
+                <select id="portfolio_type" name="portfolio_type">
+                    <option value="TFSA" selected>TFSA</option>
+                    <option value="RRSP">RRSP</option>
+                    <option value="FHSA">FHSA</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="submit-row">
+            <button class="btn-primary" type="submit">Generate Plan</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const homeRadios = document.querySelectorAll('input[name="home_plan"]');
+        const portfolioSelect = document.getElementById('portfolio_type');
+        const fhsaOption = portfolioSelect.querySelector('option[value="FHSA"]');
+
+        function updateFHSAOption() {
+            const homeYes = document.querySelector('input[name="home_plan"][value="yes"]').checked;
+
+            if (homeYes) {
+                fhsaOption.disabled = false;
+            } else {
+                if (portfolioSelect.value === 'FHSA') {
+                    portfolioSelect.value = 'TFSA';
+                }
+                fhsaOption.disabled = true;
+            }
+        }
+
+        homeRadios.forEach(r => r.addEventListener('change', updateFHSAOption));
+        updateFHSAOption();
+    });
+</script>
+
+{% endblock %}

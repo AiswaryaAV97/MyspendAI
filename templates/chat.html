@@ -1,0 +1,84 @@
+﻿{% extends "base.html" %}
+{% block content %}
+<h1>AI Chatbot</h1>
+<p class="sub">Ask anything about your finances.</p>
+<p><a class="link" href="{{ url_for('dashboard') }}">← Back to dashboard</a></p>
+
+<!-- Chat Form -->
+<form id="chatForm" method="POST">
+    <div class="mb-3">
+        <label for="message" class="form-label">Your Question:</label>
+        <input type="text" class="form-control" id="message" name="message"
+            placeholder="e.g., What are my recent expenses?" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Ask</button>
+</form>
+
+<!-- Response Display -->
+<div id="response" class="mt-4" style="display: none;">
+    <h3>Answer:</h3>
+    <p id="answerText"></p>
+    <h4>Context:</h4>
+    <p id="contextText"></p>
+</div>
+
+<!-- File Upload Form -->
+<hr>
+<h3>Upload Financial Documents</h3>
+<form id="uploadForm" enctype="multipart/form-data" method="POST" action="/upload">
+    <div class="mb-3">
+        <label class="form-label">Document Type:</label>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="doc_type" id="type_bank" value="bank_statement" checked>
+            <label class="form-check-label" for="type_bank">
+                Bank Statement (Transactions)
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="doc_type" id="type_contract" value="contract">
+            <label class="form-check-label" for="type_contract">
+                Contract or Policy (for Auditing)
+            </label>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label for="file" class="form-label">Select PDF File:</label>
+        <input type="file" class="form-control" id="file" name="file" accept=".pdf,.csv,.xlsx" required>
+    </div>
+    <button type="submit" class="btn btn-secondary">Upload & Ingest</button>
+</form>
+
+<script>
+    // Handle chat form submission via AJAX
+    document.getElementById('chatForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const message = document.getElementById('message').value;
+
+        // Show loading state
+        document.getElementById('answerText').textContent = 'Loading...';
+        document.getElementById('contextText').textContent = '';
+        document.getElementById('response').style.display = 'block';
+
+        fetch('/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        })
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                document.getElementById('answerText').textContent = data.answer || 'No answer received';
+                document.getElementById('contextText').textContent = data.context || 'No context available';
+                document.getElementById('response').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('answerText').textContent = 'Error: ' + error.message;
+                document.getElementById('response').style.display = 'block';
+            });
+    });
+</script>
+{% endblock %}

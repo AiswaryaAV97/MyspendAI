@@ -1,0 +1,878 @@
+﻿{% extends "base.html" %}
+{% block content %}
+<style>
+    .shell {
+        width: min(1100px, 96vw);
+        margin: 32px auto;
+    }
+
+    .page-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .page-top-main h1 {
+        margin: 0 0 4px;
+        font-size: 22px;
+    }
+
+    .page-top-main p {
+        margin: 0;
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+    .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 6px;
+        font-size: 12px;
+    }
+
+    .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        font-weight: 500;
+        border: 1px solid #dbeafe;
+    }
+
+    .btn-primary {
+        border: none;
+        cursor: pointer;
+        padding: 10px 14px;
+        background: var(--accent, #4f46e5);
+        color: white;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 13px;
+        transition: .15s transform, .15s opacity;
+    }
+
+    .btn {
+        border: none;
+        cursor: pointer;
+        padding: 8px 12px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 500;
+        background: #ffffff;
+        border: 1px solid #d1d5db;
+        color: #374151;
+        transition: .15s transform, .15s opacity;
+    }
+
+    .btn:hover,
+    .btn-primary:hover {
+        opacity: .96;
+        transform: translateY(-1px);
+    }
+
+    .btn-danger {
+        border-color: #fecaca;
+        color: #b91c1c;
+        background: #fef2f2;
+    }
+
+    .dashboard-link {
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .inv-card {
+        background: #ffffff;
+        border-radius: 18px;
+        padding: 20px 22px 18px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+        border: 1px solid #e5e7eb;
+        margin-bottom: 18px;
+    }
+
+    .section-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0 0 10px;
+        color: #111827;
+    }
+
+    .subtext {
+        font-size: 13px;
+        color: #6b7280;
+        margin: 0;
+    }
+
+    .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 16px;
+        margin-top: 10px;
+    }
+
+    .field {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        font-size: 13px;
+    }
+
+    .field label {
+        font-weight: 500;
+        color: #374151;
+    }
+
+    .field input,
+    .field select {
+        border-radius: 10px;
+        border: 1px solid #d1d5db;
+        padding: 8px 10px;
+        font-size: 13px;
+        outline: none;
+    }
+
+    .field input:focus,
+    .field select:focus {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.25);
+    }
+
+    .submit-row {
+        margin-top: 10px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    /* Flash messages */
+    .alert {
+        padding: 10px 12px;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        border-left: 4px solid;
+        font-size: 13px;
+    }
+
+    .alert-success {
+        background: #ecfdf3;
+        border-color: #22c55e;
+        color: #166534;
+    }
+
+    .alert-error {
+        background: #fef2f2;
+        border-color: #ef4444;
+        color: #991b1b;
+    }
+
+    .alert-info {
+        background: #eff6ff;
+        border-color: #3b82f6;
+        color: #1d4ed8;
+    }
+
+    /* Summary stats cards */
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+        gap: 12px;
+        margin-top: 10px;
+    }
+
+    .stat-box {
+        border-radius: 14px;
+        border: 1px solid #e5e7eb;
+        padding: 10px 12px;
+        background: #f9fafb;
+        font-size: 13px;
+    }
+
+    .stat-label {
+        color: #6b7280;
+        margin-bottom: 2px;
+    }
+
+    .stat-value {
+        font-size: 18px;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    /* Table */
+    .table-wrapper {
+        margin-top: 10px;
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+
+    thead tr {
+        background: #f9fafb;
+    }
+
+    th, td {
+        padding: 8px 10px;
+        border-bottom: 1px solid #e5e7eb;
+        text-align: left;
+    }
+
+    th {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        color: #6b7280;
+        font-weight: 600;
+    }
+
+    td strong {
+        font-weight: 600;
+    }
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 8px;
+        border-radius: 999px;
+        background: #eff6ff;
+        color: #1d4ed8;
+        font-size: 11px;
+        font-weight: 500;
+        border: 1px solid #dbeafe;
+    }
+
+    /* Insights highlight */
+    .summary-box {
+        background: #eff6ff;
+        border-radius: 14px;
+        padding: 10px 12px;
+        border-left: 4px solid #2563eb;
+        font-size: 13px;
+        color: #0f172a;
+        line-height: 1.5;
+    }
+
+    /* Recurring + Recommendations layout */
+    .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 16px;
+    }
+
+    .chip-title {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 6px;
+        color: #111827;
+    }
+
+    .rec-item {
+        background: #f3f4f6;
+        border-radius: 12px;
+        padding: 8px 10px;
+        margin-bottom: 6px;
+        font-size: 13px;
+    }
+
+    .tip-item {
+        background: #ecfdf3;
+        border-radius: 12px;
+        padding: 8px 10px;
+        border: 1px solid #bbf7d0;
+        margin-bottom: 6px;
+        font-size: 13px;
+        color: #14532d;
+    }
+
+    .tip-meta {
+        font-size: 11px;
+        color: #16a34a;
+        margin-top: 2px;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.45);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .modal {
+        background: #ffffff;
+        padding: 18px 18px 16px;
+        border-radius: 16px;
+        width: min(420px, 94vw);
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.4);
+        border: 1px solid #e5e7eb;
+        font-size: 13px;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        font-size: 16px;
+    }
+
+    .close-btn {
+        background: none;
+        border: none;
+        font-size: 20px;
+        padding: 0;
+        cursor: pointer;
+        line-height: 1;
+        color: #6b7280;
+    }
+
+    .modal-body {
+        margin-top: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .modal-footer {
+        margin-top: 12px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    @media (max-width: 640px) {
+        .page-top {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+    }
+</style>
+
+<script src="https://cdn.plot.ly/plotly-2.29.1.min.js"></script>
+
+<div class="shell">
+
+    <!-- TOP BAR -->
+    <div class="page-top">
+        <div class="page-top-main">
+            <h1>💸 Expense &amp; Budget Analyzer</h1>
+            <p>Logged in as <strong>{{ session.user }}</strong></p>
+
+            {% if summary_stats %}
+            <div class="pill-row">
+                <span class="pill">
+                    <span>Income</span> <strong>${{ "%.0f"|format(income) }}</strong>
+                </span>
+                {% if summary_stats.savings_goal and summary_stats.goal_progress is not none %}
+                <span class="pill">
+                    <span>Goal</span>
+                    <strong>${{ "%.0f"|format(summary_stats.savings_goal) }}</strong>
+                    <span>({{ summary_stats.goal_progress }}%)</span>
+                </span>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div>
+            <a href="{{ url_for('dashboard') }}" class="btn dashboard-link">
+                🏠 Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- FLASH MESSAGES -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for c, m in messages %}
+                <div class="alert alert-{{ c }}">{{ m }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- SUMMARY CARDS -->
+    {% if summary_stats %}
+    <div class="inv-card">
+        <h2 class="section-title">Overview</h2>
+        <p class="subtext">Quick snapshot of your current month’s spending and savings.</p>
+
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="stat-label">Total Spending</div>
+                <div class="stat-value">${{ "%.0f"|format(summary_stats.total_spending) }}</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Current Savings</div>
+                <div class="stat-value">${{ "%.0f"|format(summary_stats.current_savings) }}</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Savings Rate</div>
+                <div class="stat-value">{{ summary_stats.savings_rate }}%</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Transactions</div>
+                <div class="stat-value">{{ summary_stats.transaction_count }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- AUTO DETECTED MONTHS -->
+    {% if analysis and analysis.detected_months %}
+    <div class="inv-card" style="background:#fff7ed;">
+        <h2 class="section-title">Data Coverage</h2>
+        <p class="subtext">We analyzed your uploaded bank statements to scale income and insights correctly.</p>
+
+        <div style="margin-top:8px;">
+            <div class="stat-value" style="font-size:16px; color:#c2410c;">
+                We detected {{ analysis.detected_months }} months of transactions.
+            </div>
+            <p class="subtext" style="margin-top:4px; color:#7c2d12; line-height:1.4;">
+                Your income and expense insights have been automatically adjusted
+                to match {{ analysis.detected_months }} months of data for more accurate results.
+            </p>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ADD / IMPORT -->
+    <div class="inv-card">
+        <h2 class="section-title">Add or Import Expenses</h2>
+        <p class="subtext">Update your income, set a savings goal, or add expenses manually / from files.</p>
+
+        <div class="grid-3" style="margin-top:14px;">
+
+            <!-- Income -->
+            <div>
+                <form method="post">
+                    <input type="hidden" name="action" value="save_income">
+                    <div class="field">
+                        <label for="income_input">Monthly income ($)</label>
+                        <input id="income_input" type="text" name="income" value="{{ income }}">
+                    </div>
+                    <div class="submit-row">
+                        <button class="btn-primary" type="submit">Save income</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Savings Goal -->
+            <div>
+                <form method="post">
+                    <input type="hidden" name="action" value="save_goal">
+                    <div class="field">
+                        <label for="goal_input">Savings goal ($)</label>
+                        <input id="goal_input" type="text" name="savings_goal" value="{{ savings_goal }}">
+                    </div>
+                    <div class="submit-row">
+                        <button class="btn-primary" type="submit">Set goal</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Add Expense -->
+            <div>
+                <form method="post">
+                    <input type="hidden" name="action" value="add_expense">
+
+                    <div class="field">
+                        <label>Category</label>
+                        <select name="category">
+                            {% for c in categories %}
+                            <option>{{ c }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>Amount ($)</label>
+                        <input type="text" name="amount">
+                    </div>
+
+                    <div class="field">
+                        <label>Frequency</label>
+                        <select name="frequency">
+                            {% for f in frequencies %}
+                            <option>{{ f }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>Description (optional)</label>
+                        <input type="text" name="description">
+                    </div>
+
+                    <div class="submit-row">
+                        <button class="btn-primary" type="submit">Add expense</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- IMPORT BLOCK -->
+        <div style="margin-top:18px; padding-top:14px; border-top:1px solid #e5e7eb;">
+            <h3 class="section-title" style="font-size:15px;">Import bank statements or receipts</h3>
+            <p class="subtext">Upload PDF statements or receipt images to automatically detect transactions.</p>
+
+            <div class="submit-row" style="margin-top:10px;">
+                <!-- PDF Import -->
+                <form method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="action" value="upload_pdf">
+                    <input type="file" name="statement_file" accept="application/pdf" style="font-size:12px; max-width:220px;">
+                    <button class="btn" type="submit">Upload PDF</button>
+                </form>
+
+                <!-- Receipt OCR -->
+                <form method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="action" value="upload_receipt">
+                    <input type="file" name="receipt_file" accept="image/*" style="font-size:12px; max-width:220px;">
+                    <button class="btn" type="submit">Upload receipt</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- EXPENSE TABLE -->
+    {% if expenses %}
+    <div class="inv-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+            <div>
+                <h2 class="section-title">Your expenses ({{ expenses|length }})</h2>
+                <p class="subtext">Edit, review or clear your tracked expenses.</p>
+            </div>
+            <form method="post" onsubmit="return confirm('Delete all expenses?');">
+                <input type="hidden" name="action" value="remove_all">
+                <button class="btn btn-danger" type="submit">Clear all</button>
+            </form>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Amount</th>
+                        <th>Frequency</th>
+                        <th>Monthly</th>
+                        <th style="text-align:right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for exp in expenses %}
+                    <tr>
+                        <td>{{ exp.date }}</td>
+                        <td><span class="badge">{{ exp.Category }}</span></td>
+                        <td>{{ exp.description or '-' }}</td>
+                        <td><strong>${{ "%.2f"|format(exp.Amount) }}</strong></td>
+                        <td>{{ exp.frequency }}</td>
+                        <td><strong>${{ "%.2f"|format(exp.monthly) }}</strong></td>
+                        <td style="text-align:right;">
+                            <button type="button"
+                                    class="btn"
+                                    style="font-size:12px; padding:4px 8px;"
+                                    onclick="openEditModal(this)"
+                                    data-id="{{ exp._id }}"
+                                    data-category="{{ exp.Category }}"
+                                    data-amount="{{ '%.2f'|format(exp.Amount) }}"
+                                    data-frequency="{{ exp.frequency }}"
+                                    data-description="{{ exp.description or '' }}">
+                                Edit
+                            </button>
+                            <form method="post" style="display:inline;">
+                                <input type="hidden" name="action" value="remove_expense">
+                                <input type="hidden" name="remove_id" value="{{ exp._id }}">
+                                <button class="btn btn-danger" type="submit" style="font-size:12px; padding:4px 8px;">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- INSIGHTS INTRO -->
+    <div class="inv-card" style="text-align:center;">
+        <h2 class="section-title">Insights &amp; forecast</h2>
+        <p class="subtext">
+            Add at least <strong>3 expenses</strong> to unlock detailed trends, forecasts and smart tips.
+        </p>
+    </div>
+
+    {% if analysis %}
+
+    {% set forecast = analysis.forecast %}
+    {% set recurring = analysis.recurring_expenses %}
+    {% set recommendations = analysis.recommendations %}
+    {% set category_analysis = analysis.category_analysis %}
+
+    <!-- SUMMARY -->
+    <div class="inv-card">
+        <h2 class="section-title">Summary</h2>
+        <div class="summary-box">
+            {{ analysis.summary }}
+        </div>
+    </div>
+
+    <!-- FORECAST + TRENDS -->
+    {% if forecast or trends %}
+    <div class="inv-card">
+        <h2 class="section-title">Spending outlook</h2>
+        <div class="stats-row">
+            {% if forecast %}
+            <div class="stat-box" style="background:#eff6ff;">
+                <div class="stat-label">Forecast next month</div>
+                <div class="stat-value" style="color:#1d4ed8;">
+                    ${{ "%.0f"|format(forecast.forecast or forecast['forecast']) }}
+                </div>
+                <div class="subtext" style="margin-top:4px;">
+                    {{ (forecast.trend or forecast['trend'])|capitalize }}
+                    · Confidence:
+                    {% set conf = forecast.confidence or forecast['confidence'] %}
+                    {% if conf <= 1 %}
+                        {{ "%.0f"|format(conf * 100) }}%
+                    {% else %}
+                        {{ "%.0f"|format(conf) }}%
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if trends %}
+            <div class="stat-box" style="background:#f3e8ff;">
+                <div class="stat-label">Historical trend</div>
+                <div class="stat-value"
+                     style="color:{% if trends.trend == 'increasing' %}#b91c1c{% else %}#16a34a{% endif %};">
+                    {{ trends.trend|upper }}
+                </div>
+                <div class="subtext" style="margin-top:4px;">
+                    Change ≈ {{ trends.trend_percentage }}%
+                </div>
+            </div>
+
+            <div class="stat-box" style="background:#dcfce7;">
+                <div class="stat-label">Average monthly</div>
+                <div class="stat-value" style="color:#15803d;">
+                    ${{ "%.0f"|format(trends.average_monthly) }}
+                </div>
+                <div class="subtext" style="margin-top:4px;">
+                    Last month: ${{ "%.0f"|format(trends.last_month) }}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- CHARTS -->
+    {% if charts %}
+    <div class="inv-card">
+        <h2 class="section-title">Visual breakdown</h2>
+        <div class="grid-2">
+            {% if charts.pie %}
+            <div id="pieChart" style="height:320px;"></div>
+            {% endif %}
+            {% if charts.bar %}
+            <div id="barChart" style="height:320px;"></div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- RECURRING + RECOMMENDATIONS -->
+    {% if recurring or recommendations %}
+    <div class="inv-card">
+        <h2 class="section-title">Recurring expenses &amp; smart tips</h2>
+        <div class="grid-2" style="margin-top:10px;">
+
+            <!-- Recurring -->
+            <div>
+                <div class="chip-title">🔁 Recurring expenses</div>
+                {% if recurring %}
+                    {% for r in recurring %}
+                    <div class="rec-item">
+                        <div><strong>{{ r.category }}</strong> – ${{ "%.0f"|format(r.amount) }} / {{ r.frequency }}</div>
+                        <div class="subtext" style="margin-top:2px;">
+                            {{ r.occurrences }} payments · Interval ≈ {{ r.interval_days }} days
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="subtext">No strong recurring patterns detected yet. Add more months to find subscriptions.</p>
+                {% endif %}
+            </div>
+
+            <!-- Recommendations -->
+            <div>
+                <div class="chip-title">💡 Smart recommendations</div>
+                {% if recommendations %}
+                    {% for r in recommendations %}
+                    <div class="tip-item">
+                        <div>{{ r.message }}</div>
+                        {% if r.category %}
+                        <div class="tip-meta">
+                            Category: {{ r.category }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="subtext">No specific tips yet. Add more categorized expenses to unlock tailored advice.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- CATEGORY BREAKDOWN -->
+    {% if category_analysis %}
+    <div class="inv-card">
+        <h2 class="section-title">Category breakdown</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Total</th>
+                        <th>Share</th>
+                        <th>Transactions</th>
+                        <th>Avg per transaction</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in category_analysis %}
+                    <tr>
+                        <td><span class="badge">{{ row.category }}</span></td>
+                        <td>${{ "%.0f"|format(row.total) }}</td>
+                        <td>{{ "%.1f"|format(row.percentage) }}%</td>
+                        <td>{{ row.transaction_count }}</td>
+                        <td>${{ "%.0f"|format(row.avg_transaction) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <!-- NO ANALYSIS YET -->
+    <div class="inv-card" style="text-align:center;">
+        <h2 class="section-title">Insights not ready yet</h2>
+        <p class="subtext">
+            Add at least <strong>3 expenses</strong> or import a bank statement to generate insights.
+        </p>
+    </div>
+    {% endif %}
+
+</div> <!-- end .shell -->
+
+<!-- EDIT MODAL -->
+<div id="editModal" class="modal-backdrop">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>Edit expense</h3>
+            <button type="button" class="close-btn" onclick="closeEditModal()">×</button>
+        </div>
+
+        <form method="post" id="editExpenseForm">
+            <input type="hidden" name="action" value="edit_expense">
+            <input type="hidden" name="expense_id" id="edit_expense_id">
+
+            <div class="modal-body">
+                <div class="field">
+                    <label>Category</label>
+                    <select id="edit_category" name="category">
+                        {% for c in categories %}
+                        <option value="{{ c }}">{{ c }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Amount ($)</label>
+                    <input type="text" id="edit_amount" name="amount">
+                </div>
+
+                <div class="field">
+                    <label>Frequency</label>
+                    <select id="edit_frequency" name="frequency">
+                        {% for f in frequencies %}
+                        <option value="{{ f }}">{{ f }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Description</label>
+                    <input type="text" id="edit_description" name="description">
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn" onclick="closeEditModal()">Cancel</button>
+                <button type="submit" class="btn-primary">Save changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openEditModal(btn) {
+    const modal = document.getElementById('editModal');
+    document.getElementById('edit_expense_id').value = btn.dataset.id;
+    document.getElementById('edit_category').value = btn.dataset.category;
+    document.getElementById('edit_amount').value = btn.dataset.amount;
+    document.getElementById('edit_frequency').value = btn.dataset.frequency;
+    document.getElementById('edit_description').value = btn.dataset.description || "";
+    modal.style.display = 'flex';
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const config = { responsive: true, displayModeBar: false };
+
+    {% if charts and charts.pie %}
+    try {
+        const pieData = JSON.parse({{ charts.pie|tojson|safe }});
+        Plotly.newPlot('pieChart', pieData.data, pieData.layout, config);
+    } catch (e) { console.error('Pie chart error:', e); }
+    {% endif %}
+
+    {% if charts and charts.bar %}
+    try {
+        const barData = JSON.parse({{ charts.bar|tojson|safe }});
+        Plotly.newPlot('barChart', barData.data, barData.layout, config);
+    } catch (e) { console.error('Bar chart error:', e); }
+    {% endif %}
+});
+</script>
+
+{% endblock %}

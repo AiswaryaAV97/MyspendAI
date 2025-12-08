@@ -1,0 +1,22 @@
+﻿{% extends "base.html" %}
+{% block content %}
+<h1 class="centered">{{ "Create your account" }}</h1>
+<p class="sub">It’s quick—just a username and a password.</p>
+
+<form method="post" autocomplete="off">
+    <div class="field">
+        <label for="username">Username</label>
+        <input id="username" name="username" placeholder="Enter your emailid" required>
+    </div>
+    <div class="field">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" placeholder="make it strong" required>
+    </div>
+    <button class="btn" type="submit">Create account</button>
+</form>
+
+<p class="center" style="margin-top:16px;">
+    Already have an account?
+    <a class="link" href="{{ url_for('login') }}">Log in</a>
+</p>
+{% endblock %}

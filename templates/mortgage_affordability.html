@@ -1,0 +1,102 @@
+
+    <!-- mortgage_affordability.html (partial) -->
+<h2>Mortgage Affordability Checker</h2>
+<p style="font-size:0.9rem;color:#666;">Check the maximum home price you can afford based on your financial status..</p>
+
+<form id="affordabilityForm">
+  <label>Annual Household Income ($)</label>
+  <input type="number" id="household_income" placeholder="e.g., 80000" required>
+
+  <label>Monthly Debts ($)</label>
+  <input type="number" id="debts_per_month" placeholder="e.g., 300" required>
+
+  <label>Credit Score</label>
+  <input type="number" id="credit_total" placeholder="e.g., 750" required>
+
+  <label>Monthly Condo Fees ($)</label>
+  <input type="number" id="monthly_condo_fees" placeholder="e.g., 200">
+
+  <label>Interest Rate (%)</label>
+  <input type="number" id="interest_rate" step="0.01" placeholder="e.g., 5.5" required>
+
+  <label>Amortization Period (years)</label>
+  <input type="number" id="amortization_period" placeholder="e.g., 25" required>
+
+  <label>Province / Territory</label>
+  <select id="province" required>
+    <option value="">Select province</option>
+    <option value="AB">Alberta</option><option value="BC">British Columbia</option>
+    <option value="MB">Manitoba</option><option value="NB">New Brunswick</option>
+    <option value="NL">Newfoundland and Labrador</option><option value="NS">Nova Scotia</option>
+    <option value="ON">Ontario</option><option value="PE">Prince Edward Island</option>
+    <option value="QC">Quebec</option><option value="SK">Saskatchewan</option>
+    <option value="NT">Northwest Territories</option><option value="NU">Nunavut</option>
+    <option value="YT">Yukon</option>
+  </select>
+
+  <button type="submit">Check Affordability</button>
+</form>
+
+<div class="results-grid" id="resultGrid" aria-live="polite">
+  <div class="result-box"><h4>Max Home Price</h4><div id="maxPrice" class="value">—</div></div>
+  <div class="result-box"><h4>Predicted Monthly Payment</h4><div id="monthlyPayment" class="value">—</div></div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("affordabilityForm");
+  if (!form) return;
+  const byId = id => document.getElementById(id);
+  const maxPriceEl = byId("maxPrice"), monthlyPaymentEl = byId("monthlyPayment");
+  const submitBtn = () => form.querySelector('button[type="submit"]');
+  const fmtMoney = v => (v === undefined || v === null) ? "—" : `$${Number(v).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = submitBtn(); if (btn) btn.disabled = true;
+
+    const data = {
+      action: "affordability",
+      household_income: Number(form.querySelector("#household_income")?.value || 0),
+      debts_per_month: Number(form.querySelector("#debts_per_month")?.value || 0),
+      credit_total: Number(form.querySelector("#credit_total")?.value || 0),
+      monthly_condo_fees: Number(form.querySelector("#monthly_condo_fees")?.value || 0),
+      interest_rate: Number(form.querySelector("#interest_rate")?.value || 0),
+      amortization_period: parseInt(form.querySelector("#amortization_period")?.value, 10) || 0,
+      province: form.querySelector("#province")?.value || "ON"
+    };
+
+    if (!Number.isFinite(data.household_income) || data.household_income <= 0) {
+      maxPriceEl.textContent = "Enter valid income.";
+      if (btn) btn.disabled = false;
+      return;
+    }
+
+    try {
+      const res = await fetch("{{ url_for('mortgage.mortgage_calculate') }}", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify(data)
+      });
+      const contentType = res.headers.get("content-type") || "";
+      const json = contentType.includes("application/json") ? await res.json() : null;
+
+      if (!res.ok) {
+        maxPriceEl.textContent = json?.error || `Request failed (${res.status})`;
+        monthlyPaymentEl.textContent = "—";
+        return;
+      }
+
+      maxPriceEl.textContent = fmtMoney(json.predicted_max_home_price);
+      monthlyPaymentEl.textContent = fmtMoney(json.predicted_monthly_payment);
+    } catch (err) {
+      console.error(err);
+      maxPriceEl.textContent = "Network error. See console.";
+      monthlyPaymentEl.textContent = "—";
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  });
+});
+</script>

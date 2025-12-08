@@ -1,0 +1,73 @@
+# ----------------------------
+# FLASK + SERVER
+# ----------------------------
+Flask==3.0.0
+Werkzeug==3.0.1
+python-dotenv==1.0.0
+
+# ----------------------------
+# DATABASE
+# ----------------------------
+pymongo==4.6.1
+
+# ----------------------------
+# DATA PROCESSING
+# ----------------------------
+numpy==2.1.3
+pandas==2.2.3
+python-dateutil==2.8.2
+pytz==2023.3
+
+# ----------------------------
+# MACHINE LEARNING (TRADITIONAL)
+# ----------------------------
+scikit-learn==1.3.2
+joblib==1.3.2
+xgboost==2.0.3
+
+# ----------------------------
+# MACHINE LEARNING (PYTORCH + TRANSFORMERS)
+# ----------------------------
+torch==2.1.2
+torchvision==0.16.2
+torchaudio==2.1.2
+
+transformers==4.36.2
+tokenizers==0.15.0
+sentencepiece==0.1.99
+
+# ----------------------------
+# OCR & IMAGE PROCESSING
+# ----------------------------
+pytesseract==0.3.10
+Pillow==10.1.0
+
+# ----------------------------
+# RAG + LLM + API Tools
+# ----------------------------
+requests==2.31.0
+ollama==0.1.6
+
+# ----------------------------
+# VISUALIZATION
+# ----------------------------
+plotly==5.18.0
+kaleido==0.2.1
+
+# ----------------------------
+# SECURITY
+# ----------------------------
+cryptography==41.0.7
+
+# ----------------------------
+# DEVELOPMENT / TESTING
+# ----------------------------
+pytest==7.4.3
+pytest-cov==4.1.0
+black==23.12.1
+flake8==7.0.0
+
+# ----------------------------
+# PERFORMANCE MONITORING
+# ----------------------------
+psutil==5.9.8

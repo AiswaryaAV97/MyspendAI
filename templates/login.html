@@ -1,0 +1,30 @@
+﻿{% extends "base.html" %}
+{% block content %}
+<style>
+    .centered {
+        text-align: center;
+    }
+</style>
+<h1 class="centered">{{ "SmartSpendAI" }}</h1>
+<p class="sub">Log in to your account to access your SmartSpendAI.</p>
+
+<form method="post" autocomplete="off">
+    <div class="field">
+        <label for="username">Username</label>
+        <input id="username" name="username" placeholder="Enter your emailid" required>
+    </div>
+    <div class="field">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" placeholder="Your password" required>
+    </div>
+    <button class="btn" type="submit">Log in</button>
+</form>
+<p class="center" style="margin-top:10px">
+    <a class="link" href="{{ url_for('forgot_password') }}">Forgot password?</a> 
+</p>
+
+<p class="center" style="margin-top:16px;">
+    New here?
+    <a class="link" href="{{ url_for('register') }}">Create an account</a>
+</p>
+{% endblock %}

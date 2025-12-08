@@ -1,0 +1,109 @@
+﻿{% extends "base.html" %}
+{% block content %}
+<style>
+  .mortgage-container { 
+      max-width: 900px; 
+      margin: 28px auto; 
+      padding: 10px; 
+  }
+  .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+  }
+  .page-header h1 {
+      margin: 0;
+      font-size: 26px;
+  }
+  .page-header p {
+      margin: 2px 0 0;
+      font-size: 13px;
+      color: #666;
+  }
+  .dashboard-btn {
+      padding: 8px 14px;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+  }
+  .dashboard-btn:hover {
+      opacity: .8;
+  }
+
+  /* Tab styling */
+  .tabs { display:flex; gap:8px; margin-bottom:16px; }
+  .tab-btn { 
+      padding:8px 14px; 
+      border-radius:6px; 
+      border:1px solid #ccc; 
+      background:#fff; 
+      cursor:pointer; 
+  }
+  .tab-btn.active { 
+      background:#0f172a; 
+      color:#fff; 
+      border-color:#0f172a; 
+      font-weight:600; 
+  }
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+</style>
+
+<div class="mortgage-container">
+
+    <!-- PAGE HEADER LIKE OTHER MODULES -->
+    <div class="page-header">
+        <div>
+            <h1>🏡 Real-estate / Mortgage Advisor</h1>
+            <p>Logged in as <strong>{{ session.user }}</strong></p>
+        </div>
+
+        <a class="dashboard-btn" href="{{ url_for('dashboard') }}">🏠 Dashboard</a>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+        <button class="tab-btn" data-tab="feature">Mortgage Feature</button>
+        <button class="tab-btn" data-tab="affordability">Mortgage Affordability</button>
+    </div>
+
+    <!-- TAB CONTENTS (INCLUDED FILES) -->
+    <div id="featureContent" class="tab-content">
+        {% include "mortgage_features.html" %}
+    </div>
+
+    <div id="affordabilityContent" class="tab-content">
+        {% include "mortgage_affordability.html" %}
+    </div>
+
+</div>
+
+<script>
+  // Tab switching logic
+  function showTab(name) {
+    name = (name === "affordability") ? "affordability" : "feature";
+
+    document.querySelectorAll(".tab-btn").forEach(btn =>
+        btn.classList.toggle("active", btn.dataset.tab === name)
+    );
+    document.getElementById("featureContent").classList.toggle("active", name === "feature");
+    document.getElementById("affordabilityContent").classList.toggle("active", name === "affordability");
+
+    const u = new URL(window.location.href);
+    u.searchParams.set("tab", name);
+    history.replaceState(null, "", u);
+  }
+
+  document.querySelectorAll(".tab-btn").forEach(btn =>
+      btn.addEventListener("click", () => showTab(btn.dataset.tab))
+  );
+
+  const params = new URLSearchParams(window.location.search);
+  showTab(params.get("tab") || "feature");
+</script>
+
+{% endblock %}

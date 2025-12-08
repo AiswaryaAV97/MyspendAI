@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+.shell {
+    width: min(900px, 94vw);
+    margin: 32px auto;
+}
+
+.page-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.page-top-main h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.page-top-main p {
+    margin: 2px 0 0;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.dashboard-link {
+    text-decoration: none;
+    padding: 10px 14px;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    color: #374151;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: 0.15s;
+}
+.dashboard-link:hover {
+    opacity: .85;
+    transform: translateY(-1px);
+}
+
+/* Panel Styles */
+.panel {
+    background:white;
+    padding:22px;
+    border-radius:12px;
+    margin:20px auto;
+    width:100%;
+    box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+.section { margin-bottom:22px; }
+.section h3 { margin-bottom:10px; }
+
+/* Inputs */
+input, select {
+    width:100%;
+    padding:10px;
+    margin:6px 0 16px;
+    border-radius:8px;
+    border:1px solid #ccc;
+}
+
+/* Buttons */
+button {
+    background:#1e3a8a;
+    color:white;
+    padding:12px 20px;
+    border-radius:8px;
+    border:none;
+    cursor:pointer;
+    width:100%;
+    font-weight:600;
+}
+button:hover { background:#1e40af; }
+
+/* Result Cards */
+.result-card {
+    margin-top:20px;
+    background:#f8fafc;
+    padding:18px;
+    border-radius:12px;
+}
+
+.plan-card {
+    margin-top:14px;
+    padding:14px;
+    border-radius:10px;
+    background:#ffffff;
+    border:1px solid #e5e7eb;
+}
+
+/* Badges */
+.badge {
+    display:inline-block;
+    padding:3px 10px;
+    border-radius:999px;
+    font-size:12px;
+    margin-left:8px;
+}
+
+.badge-critical { background:#fee2e2; color:#991b1b; }
+.badge-high     { background:#fef3c7; color:#92400e; }
+.badge-medium   { background:#e0f2fe; color:#075985; }
+.badge-low      { background:#dcfce7; color:#166534; }
+</style>
+
+<!-- ========================================================= -->
+<!-- HEADER (Same style as your Debt & Expense pages) -->
+<!-- ========================================================= -->
+<div class="shell">
+    <div class="page-top">
+        <div class="page-top-main">
+            <h1>🛡️ Insurance & Risk Advisor</h1>
+            <p>Logged in as <strong>{{ session.user }}</strong></p>
+        </div>
+
+        <div>
+            <a href="{{ url_for('dashboard') }}" class="dashboard-link">🏠 Dashboard</a>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- FORM -->
+    <!-- ========================================================= -->
+    <form method="post" class="panel">
+
+        <!-- PERSONAL -->
+        <div class="section">
+            <h3>Personal Information</h3>
+
+            <label>Age</label>
+            <input type="number" name="age" min="18" max="80" required>
+
+            <label>Gender</label>
+            <select name="gender">
+                <option>Male</option><option>Female</option><option>Other</option>
+            </select>
+
+            <label>Marital Status</label>
+            <select name="marital_status">
+                <option>Single</option><option>Married</option><option>Partner</option>
+            </select>
+
+            <label>Number of Dependents</label>
+            <input type="number" name="dependents" min="0" value="0">
+        </div>
+
+        <!-- INCOME -->
+        <div class="section">
+            <h3>Income</h3>
+            <label>Annual Income (CAD)</label>
+            <input type="number" name="income" min="0" placeholder="e.g., 75000">
+        </div>
+
+        <!-- ASSETS -->
+        <div class="section">
+            <h3>Assets</h3>
+
+            <label>Do you own a home?</label>
+            <select name="has_home">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+            </select>
+
+            <label>Home Value (if applicable)</label>
+            <input type="number" name="home_value" min="0">
+
+            <label>Total Savings</label>
+            <input type="number" name="savings" min="0">
+
+            <label>Total Investments</label>
+            <input type="number" name="investments" min="0">
+        </div>
+
+        <!-- LIABILITIES -->
+        <div class="section">
+            <h3>Liabilities</h3>
+
+            <label>Mortgage</label>
+            <input type="number" name="mortgage" min="0">
+
+            <label>Car Loan</label>
+            <input type="number" name="car_loan" min="0">
+
+            <label>Credit Card Debt</label>
+            <input type="number" name="credit_debt" min="0">
+
+            <label>Student Loan</label>
+            <input type="number" name="student_loan" min="0">
+        </div>
+
+        <!-- HEALTH -->
+        <div class="section">
+            <h3>Health & Lifestyle</h3>
+
+            <label>Height (cm)</label>
+            <input type="number" name="height" min="100" max="220">
+
+            <label>Weight (kg)</label>
+            <input type="number" name="weight" min="35" max="200">
+
+            <label>Do you smoke?</label>
+            <select name="smoker">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+            </select>
+
+            <label>Exercise Frequency</label>
+            <select name="exercise">
+                <option value="low">Rarely</option>
+                <option value="medium" selected>Sometimes</option>
+                <option value="high">Often</option>
+            </select>
+        </div>
+
+        <!-- RISK PREFERENCE -->
+        <div class="section">
+            <h3>Risk Preference</h3>
+
+            <label>Risk Tolerance</label>
+            <select name="risk_tol">
+                <option value="low">Low – I like safety</option>
+                <option value="medium" selected>Medium – balanced</option>
+                <option value="high">High – I can handle more risk</option>
+            </select>
+        </div>
+
+        <button type="submit">Calculate Recommendations</button>
+    </form>
+
+    <!-- ========================================================= -->
+    <!-- RESULTS -->
+    <!-- ========================================================= -->
+    {% if results %}
+    <div class="panel result-card">
+        <h3>Risk Summary</h3>
+        <p>
+            <strong>Risk Assessment:</strong>
+            {{ results.risk_label }} risk (Score: {{ results.risk_score }}/100)
+        </p>
+
+        <h3>Premium Summary</h3>
+        <p>
+            <strong>Total Estimated Premium:</strong>
+            ${{ results.total_premium_yearly | round(0) | int }}/year
+            (≈ ${{ results.total_premium_monthly | round(0) | int }}/month)
+        </p>
+    </div>
+
+    <div class="panel result-card">
+        <h3>Insurance Recommendations (8 Types)</h3>
+
+        {% for plan in results.plans %}
+        {% set pri = plan.priority.lower() %}
+        <div class="plan-card">
+            <h4>
+                {{ plan.name }}
+                <span class="badge
+                    {% if pri == 'critical' %}badge-critical
+                    {% elif pri == 'high' %}badge-high
+                    {% elif pri == 'medium' %}badge-medium
+                    {% else %}badge-low{% endif %}">
+                    {{ plan.priority }}
+                </span>
+            </h4>
+
+            <p><strong>Suggested Coverage:</strong> ${{ plan.coverage | int }}</p>
+            <p><strong>Estimated Premium:</strong>
+                ${{ plan.premium | round(0) | int }}/year
+                (≈ ${{ (plan.premium / 12) | round(0) | int }}/month)
+            </p>
+            <p style="font-size:0.9rem;">{{ plan.note }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container" style="max-width: 1100px; margin: 20px auto;">
+
+    <!-- HEADER -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <div>
+            <h2>🚗 Car Loan Planner</h2>
+            <small>
+                Logged in as <strong>{{ session.user }}</strong><br>
+                Credit score: <strong>{{ credit_score }}</strong> ({{ credit_tier|title }})
+            </small>
+        </div>
+
+        <a href="{{ url_for('dashboard') }}"
+           style="padding:8px 14px; border:1px solid #ccc; border-radius:8px; text-decoration:none;">
+           🏠 Dashboard
+        </a>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div style="background:white; padding:18px; border-radius:10px; border:1px solid #ddd; margin-bottom:18px;">
+        <h3>Overview</h3>
+        <p>Your profile snapshot.</p>
+
+        <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:18px; margin-top:10px;">
+            <div>
+                <b>Annual Income</b><br>
+                ${{ "%.0f"|format(user_income or 0) }}
+            </div>
+            <div>
+                <b>Debt Budget</b><br>
+                ${{ "%.0f"|format(user_debt or 0) }}/month
+            </div>
+            <div>
+                <b>Estimated Credit Score</b><br>
+                {{ credit_score }}
+            </div>
+        </div>
+    </div>
+
+    <!-- STEP 1 – AI CAR SUGGESTIONS -->
+    <div style="background:white; padding:18px; border-radius:10px; border:1px solid #ddd; margin-bottom:18px;">
+        <h3>Step 1 – Car Suggestions</h3>
+        <p>Enter your preferred monthly payment to see realistic car options.</p>
+
+        <form method="post">
+            <input type="hidden" name="action" value="ai_recommend">
+
+            <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:18px; margin-top:10px;">
+
+                <!-- Preferred monthly budget -->
+                <div>
+                    <label>Preferred Monthly Payment ($)</label>
+                    <input type="number" name="ai_budget" class="form-control"
+                           placeholder="e.g., 450" min="100" step="25" required>
+                </div>
+
+                <!-- Optional credit profile (not wired to Python yet, safe to leave) -->
+                <div>
+                    <label>Credit Profile (optional)</label>
+                    <select name="ai_credit" class="form-control">
+                        <option value="">Use estimated score ({{ credit_score }})</option>
+                        <option value="excellent">Excellent</option>
+                        <option value="good">Good</option>
+                        <option value="fair">Fair</option>
+                        <option value="poor">Poor</option>
+                    </select>
+                </div>
+
+                <!-- Income display -->
+                <div>
+                    <label>Income used</label>
+                    <input class="form-control"
+                           value="${{ "%.0f"|format(user_income or 0) }}/year"
+                           disabled>
+                </div>
+
+            </div>
+
+            <button class="btn btn-primary" style="margin-top:15px;">🔍 Get Recommendations</button>
+        </form>
+
+        {% if ai_recommendations %}
+        <h4 style="margin-top:20px;">Top matches for your budget</h4>
+
+        <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:15px; margin-top:10px;">
+
+            {% for r in ai_recommendations %}
+            <div style="border:1px solid #ddd; padding:14px; border-radius:10px; background:#f9fafb;">
+                <b>{{ r.year }} {{ r.company }} {{ r.model }} – {{ r.trim }}</b><br>
+                <small>
+                    Price: ${{ "%.0f"|format(r.price) }}<br>
+                    Est. payment: <strong>${{ "%.0f"|format(r.estimated_monthly) }}</strong>/mo
+                </small>
+
+                <form method="post" style="margin-top:10px;">
+                    <input type="hidden" name="action" value="prefill_selection">
+                    <input type="hidden" name="year" value="{{ r.year }}">
+                    <input type="hidden" name="company" value="{{ r.company }}">
+                    <input type="hidden" name="model" value="{{ r.model }}">
+                    <input type="hidden" name="trim" value="{{ r.trim }}">
+                    <button class="btn btn-secondary btn-sm" type="submit">
+                        Use this car in Step 2
+                    </button>
+                </form>
+            </div>
+            {% endfor %}
+
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- STEP 2 – LOAN BUILDER -->
+    <div style="background:white; padding:18px; border-radius:10px; border:1px solid #ddd; margin-bottom:18px;">
+
+        <h3>Step 2 – Build Your Loan Plan</h3>
+        <p>Select a car and tune your loan details.</p>
+
+        <form method="post" id="loanForm">
+            <input type="hidden" name="action" id="formAction" value="calculate">
+
+            <!-- DROPDOWNS: YEAR / BRAND / MODEL / TRIM -->
+            <div style="display:grid; grid-template-columns: repeat(4,1fr); gap:18px; margin-top:8px;">
+
+                <!-- YEAR -->
+                <div>
+                    <label>Year</label>
+                    <select name="year" class="form-control" onchange="selectYear()">
+                        <option value="">Select</option>
+                        {% for y in years %}
+                        <option value="{{ y }}" {% if selected_year == y %}selected{% endif %}>{{ y }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- BRAND -->
+                <div>
+                    <label>Brand</label>
+                    <select name="company" class="form-control" onchange="selectCompany()">
+                        <option value="">Select</option>
+                        {% for c in companies %}
+                        <option value="{{ c }}" {% if selected_company == c %}selected{% endif %}>{{ c }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- MODEL -->
+                <div>
+                    <label>Model</label>
+                    <select name="model" class="form-control" onchange="selectModel()">
+                        <option value="">Select</option>
+                        {% for m in models %}
+                        <option value="{{ m }}" {% if selected_model == m %}selected{% endif %}>{{ m }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- TRIM -->
+                <div>
+                    <label>Trim</label>
+                    <select name="trim" class="form-control">
+                        <option value="">Select</option>
+                        {% for t in trims %}
+                        <option value="{{ t }}" {% if selected_trim == t %}selected{% endif %}>{{ t }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+            </div>
+
+            <!-- TERM + SLIDERS -->
+            <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:18px; margin-top:18px;">
+
+                <!-- TERM -->
+                <div>
+                    <label>Term (months)</label>
+                    <select name="term" class="form-control">
+                        <option value="36" {% if term == 36 %}selected{% endif %}>36</option>
+                        <option value="48" {% if term == 48 %}selected{% endif %}>48</option>
+                        <option value="60" {% if term == 60 or term is not defined %}selected{% endif %}>60</option>
+                        <option value="72" {% if term == 72 %}selected{% endif %}>72</option>
+                        <option value="84" {% if term == 84 %}selected{% endif %}>84</option>
+                    </select>
+                </div>
+
+                <!-- DOWN PAYMENT SLIDER -->
+                <div>
+                    <label>Down Payment (%)</label>
+                    <input type="range" name="down_payment_pct"
+                           min="5" max="50" step="5"
+                           value="{{ down_payment_pct or 20 }}"
+                           oninput="dpShow.innerText=this.value+'%'">
+                    <br>
+                    <small>Selected: <span id="dpShow">{{ down_payment_pct or 20 }}%</span></small>
+                </div>
+
+                <!-- EXTRA PAYMENT SLIDER -->
+                <div>
+                    <label>Extra Monthly Payment ($)</label>
+                    <input type="range" name="extra_payment"
+                           min="0" max="500" step="25"
+                           value="{{ extra_payment or 0 }}"
+                           oninput="epShow.innerText='$'+this.value">
+                    <br>
+                    <small>Extra: <span id="epShow">${{ extra_payment or 0 }}</span></small>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" style="margin-top:18px;">📊 Build Loan Plan</button>
+        </form>
+    </div>
+
+    <!-- RESULTS SECTION -->
+    {% if car_key %}
+    <div style="background:white; padding:18px; border-radius:10px; border:1px solid #ddd;">
+
+        <h3>Your Loan Plan – {{ car_key }}</h3>
+
+        <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:18px; margin-top:8px;">
+            <div><b>Car Price:</b> ${{ price|round }}</div>
+            <div><b>Down Payment:</b> ${{ down_payment|round }}</div>
+            <div><b>Loan Amount:</b> ${{ principal|round }}</div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:18px; margin-top:10px;">
+            <div><b>Monthly Payment:</b> ${{ base_scenario.monthly_payment|round }}</div>
+            <div><b>Bi-weekly (approx):</b> ${{ biweekly_payment|round }}</div>
+            <div><b>Interest Rate:</b> {{ "%.2f"|format(rate) }}%</div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:18px; margin-top:10px;">
+            <div><b>Total Interest:</b> ${{ base_scenario.total_interest|round }}</div>
+            <div><b>Total Paid:</b> ${{ base_scenario.total_paid|round }}</div>
+            {% if ml_interest is not none %}
+            <div><b>ML-estimated Interest:</b> ${{ ml_interest|round }}</div>
+            {% else %}
+            <div><b>ML-estimated Interest:</b> N/A</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- INSIGHTS -->
+    {% if insights %}
+    <div style="background:white; padding:18px; margin-top:18px; border-radius:10px; border:1px solid #ddd;">
+        <h3>Insights & Advice</h3>
+
+        {% for i in insights %}
+        <div style="border:1px solid #eee; padding:10px; border-radius:8px; margin-bottom:10px;">
+            <b>{{ i.icon }} {{ i.title }}</b><br>
+            <small>{{ i.message }}</small>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- PAYOFF CHART -->
+    <div style="background:white; padding:18px; margin-top:18px; border-radius:10px; border:1px solid #ddd;">
+        <h3>Payoff Timeline</h3>
+        <p style="font-size:12px; color:#666;">
+            Blue line = normal payments.  
+            Dotted line (if visible) = with extra monthly payment.
+        </p>
+        <div id="carLoanChart" style="height:420px;"></div>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- PLOTLY -->
+<script src="https://cdn.plot.ly/plotly-2.29.1.min.js"></script>
+
+<script>
+    // Cascading dropdown helpers
+    function selectYear()    { formAction.value = "select_year";   loanForm.submit(); }
+    function selectCompany() { formAction.value = "select_company";loanForm.submit(); }
+    function selectModel()   { formAction.value = "select_model";  loanForm.submit(); }
+
+    {% if chart_json %}
+    // Plot both standard and extra-payment payoff curves
+    const chartConfig = JSON.parse({{ chart_json|tojson }});
+    Plotly.newPlot("carLoanChart", chartConfig.data, chartConfig.layout);
+    {% endif %}
+</script>
+
+{% endblock %}

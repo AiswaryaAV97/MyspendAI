@@ -1,0 +1,189 @@
+﻿{% extends "base.html" %}
+{% block content %}
+<style>
+    .shell {
+        width: min(1100px, 96vw);
+        margin: 32px auto;
+    }
+
+    .inv-card {
+        background: #ffffff;
+        border-radius: 18px;
+        padding: 24px 24px 20px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+        border: 1px solid #e5e7eb;
+        margin-bottom: 18px;
+    }
+
+    .section-title {
+        font-size: 16px;
+        margin: 0 0 6px;
+    }
+
+    .section-sub {
+        margin: 0 0 10px;
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+    .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+    }
+
+    .stat-pill {
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        font-size: 13px;
+    }
+
+        .stat-pill strong {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 2px;
+        }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+
+    th, td {
+        border-bottom: 1px solid #f3f4f6;
+        padding: 6px 4px;
+        text-align: left;
+    }
+
+    th {
+        font-weight: 600;
+        color: #4b5563;
+    }
+
+    .chart-box {
+        margin-top: 10px;
+    }
+</style>
+
+<div class="shell">
+    <div class="inv-card">
+        <h2 class="center">📊 Summary</h2>
+        <p class="section-sub">
+            You invested <strong>${{ '%.2f'|format(investment_amount) }}</strong>.
+            Primary account: <strong>{{ portfolio_type }}</strong>.
+            Risk: <strong>{{ risk_pref|capitalize }}</strong>.
+        </p>
+
+        <div class="grid-2">
+            <div class="stat-pill">
+                <strong>Best wrapper (by allocation)</strong>
+                {% if best_wrapper %}
+                {{ best_wrapper }} – {{ wrapper_perc[best_wrapper] }}%
+                {% else %}
+                Not determined
+                {% endif %}
+            </div>
+            <div class="stat-pill">
+                <strong>Expected annual return</strong>
+                {{ metrics.expected_return_pct }}%
+            </div>
+            <div class="stat-pill">
+                <strong>Annual volatility</strong>
+                {{ metrics.volatility_pct }}%
+            </div>
+            <div class="stat-pill">
+                <strong>Max drawdown (worst dip)</strong>
+                {{ metrics.max_drawdown_pct }}%
+            </div>
+        </div>
+    </div>
+
+    <div class="inv-card">
+        <h2 class="section-title">🏦 Tax-wrapper allocation (RRSP / TFSA / FHSA)</h2>
+        <p class="section-sub">How your total contribution is split across accounts.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Account</th>
+                    <th>Amount ($)</th>
+                    <th>Share (%)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for k, v in wrapper_amounts.items() %}
+                <tr>
+                    <td>{{ k }}</td>
+                    <td>{{ '%.2f'|format(v) }}</td>
+                    <td>{{ '%.2f'|format(wrapper_perc[k]) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="inv-card">
+        <h2 class="section-title">💰 Investment Breakdown & Forecast</h2>
+        <p class="section-sub">How much you pay today, and how much you may earn within your horizon.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Ticker</th>
+                    <th>Asset Class</th>
+                    <th>Weight (%)</th>
+                    <th>Amount Invested ($)</th>
+                    <th>Expected Value at Horizon ($)</th>
+                    <th>Expected Gain ($)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in asset_analysis %}
+                <tr>
+                    <td>{{ a.Ticker }}</td>
+                    <td>{{ a.AssetClass }}</td>
+                    <td>{{ a.WeightPct }}</td>
+                    <td>{{ a.InvestAmount }}</td>
+                    <td>{{ a.FutureValue }}</td>
+                    <td>{{ a.ExpectedGain }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="inv-card">
+        <h2 class="section-title">🏆 Best ETF/Bond for You</h2>
+        <p class="section-sub">
+            Based on your risk preference and expected future returns, the best option is:
+            <strong>{{ best_asset.Ticker }}</strong> ({{ best_asset.AssetClass }})
+            with an expected value of <strong>${{ best_asset.FutureValue }}</strong>.
+        </p>
+    </div>
+
+</div>
+
+    <div class="inv-card">
+        <h2 class="section-title">📈 Visualizations</h2>
+        <p class="section-sub">Overall allocation by asset, plus how your selected account is split across ETFs/bonds.</p>
+        <div class="chart-box">
+            <div id="allocChart"></div>
+        </div>
+        <div class="chart-box">
+            <div id="pieChart"></div>
+        </div>
+    </div>
+
+
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<script>
+    const allocConfig = {{ alloc_chart_json|safe }};
+    const pieConfig = {{ pie_chart_json|safe }};
+
+    Plotly.newPlot('allocChart', allocConfig.data, allocConfig.layout);
+    Plotly.newPlot('pieChart', pieConfig.data, pieConfig.layout);
+</script>
+{% endblock %}

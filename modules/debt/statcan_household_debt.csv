@@ -1,0 +1,52 @@
+﻿"Debt service indicators of households, national balance sheet accounts"
+"Frequency: Quarterly"
+"Table: 11-10-0065-01"
+"Release date: 2025-09-11"
+"Geography: Canada"
+""
+""
+
+"Seasonal adjustment","Seasonally adjusted at annual rates",,,,
+"Geography","Canada",,,,
+"Estimates","Q2 2024","Q3 2024","Q4 2024","Q1 2025","Q2 2025"
+"Household income  (x 1,000,000)","2,621,660","2,679,056","2,700,052","2,715,692","2,715,232"
+"Compensation of employees  (x 1,000,000)","1,539,144","1,570,964","1,585,048","1,597,368","1,600,196"
+"Net mixed income  (x 1,000,000)","280,592","288,076","296,056","295,840","298,412"
+"Property income received 1  (x 1,000,000)","334,112","339,216","336,632","330,212","333,124"
+"Current transfers received  (x 1,000,000)","467,812","480,800","482,316","492,272","483,500"
+"Household outlays  (x 1,000,000)","2,567,768","2,603,812","2,645,344","2,658,384","2,673,412"
+"Property income paid 1  (x 1,000,000)","151,172","147,352","143,560","140,716","140,828"
+"Current transfers paid  (x 1,000,000)","776,604","790,948","805,044","806,904","800,748"
+"Household final consumption expenditure  (x 1,000,000)","1,639,992","1,665,512","1,696,740","1,710,764","1,731,836"
+"Disposable income   (x 1,000,000)","1,693,884","1,740,756","1,751,448","1,768,072","1,773,656"
+"Plus: Interest paid  (x 1,000,000)","178,424","175,300","171,796","170,776","171,936"
+"Equals: disposable income before payment of interest 2  (x 1,000,000)","1,872,308","1,916,056","1,923,244","1,938,848","1,945,592"
+"Total debt payments 2  (x 1,000,000)","278,752","278,088","277,028","278,524","280,452"
+"Mortgage debt payments 2  (x 1,000,000)","152,380","151,940","151,204","151,884","152,780"
+"Non-mortgage debt payments 2  (x 1,000,000)","126,372","126,148","125,824","126,640","127,672"
+"Total obligated payments of principal 2  (x 1,000,000)","100,328","102,788","105,232","107,748","108,516"
+"Obligated mortgage principal payments 2  (x 1,000,000)","47,940","49,352","50,356","51,100","51,112"
+"Obligated non-mortgage principal payments 2  (x 1,000,000)","52,388","53,436","54,876","56,648","57,404"
+"Total interest paid 2  (x 1,000,000)","178,424","175,300","171,796","170,776","171,936"
+"Mortgage interest paid 2  (x 1,000,000)","104,440","102,588","100,848","100,784","101,668"
+"Non-mortgage interest paid 2  (x 1,000,000)","73,984","72,712","70,948","69,992","70,268"
+"Of which: consumer debt  2  (x 1,000,000)","61,096","59,844","58,392","57,600","58,408"
+"Debt service ratio 2","14.89","14.51","14.40","14.37","14.41"
+"Mortgage debt service ratio 2","8.14","7.93","7.86","7.83","7.85"
+"Non-mortgage debt service ratio 2","6.75","6.58","6.54","6.53","6.56"
+"Debt service ratio, interest only 2","9.53","9.15","8.93","8.81","8.84"
+"Mortgage debt service ratio, interest only 2","5.58","5.35","5.24","5.20","5.23"
+"Non-mortgage debt service ratio, interest only 2","3.95","3.79","3.69","3.61","3.61"
+"Of which: consumer debt service ratio, interest only 2","3.26","3.12","3.04","2.97","3.00"
+
+
+
+
+Footnotes:
+1,"Property incomes are adjusted for the cost of financial services indirectly measured."
+2,"Household debt service indicators."
+
+
+
+"How to cite: Statistics Canada. Table 11-10-0065-01  Debt service indicators of households, national balance sheet accounts"
+https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1110006501

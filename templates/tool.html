@@ -1,0 +1,6 @@
+﻿{% extends "base.html" %}
+{% block content %}
+<h1>{{ title }}</h1>
+<p class="sub">Coming soon. This will be the {{ title.lower() }} workspace.</p>
+<p><a class="link" href="{{ url_for('dashboard') }}">← Back to dashboard</a></p>
+{% endblock %}

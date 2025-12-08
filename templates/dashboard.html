@@ -1,0 +1,244 @@
+﻿{% extends "base.html" %}
+{% block content %}
+<style>
+
+
+    .card {
+        width: min(1100px,94vw);
+        padding: 28px;
+        position: relative;
+    }
+
+    .dash-header {
+        text-align: center;
+        margin-bottom: 12px;
+    }
+
+    .dash-sub {
+        margin: 0 0 18px;
+        text-align: center;
+        color: #6b7280
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 16px;
+    }
+
+    .tile {
+        display: block;
+        text-decoration: none;
+        color: #111;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 16px;
+        box-shadow: 0 6px 18px rgba(0,0,0,.06);
+        transition: transform .08s ease, box-shadow .08s ease, border-color .08s ease;
+        min-height: 92px;
+    }
+
+        .tile:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 24px rgba(0,0,0,.10);
+            border-color: #d1d5db;
+        }
+
+        .tile h3 {
+            margin: 0 0 6px;
+            font-size: 16px
+        }
+
+        .tile p {
+            margin: 0;
+            font-size: 13px;
+            color: #6b7280
+        }
+
+    .emoji {
+        font-size: 22px;
+        margin-right: 8px
+    }
+
+
+    .chat-fab {
+        position: fixed;
+        right: 24px;
+        bottom: 24px;
+        z-index: 50;
+        background: #111827;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 9999px;
+        padding: 12px 16px;
+        font-size: 14px;
+        box-shadow: 0 12px 24px rgba(0,0,0,.18);
+    }
+
+    /* User profile dropdown (top-right) */
+    .user-profile-container {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        z-index: 100;
+    }
+
+    .profile-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 9999px;
+        background: #111827;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 10px 22px rgba(0,0,0,.18);
+        user-select: none;
+    }
+
+    .profile-dropdown {
+        position: absolute;
+        top: 52px;
+        right: 0;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        box-shadow: 0 18px 32px rgba(0,0,0,.14);
+        min-width: 220px;
+        padding: 8px 0;
+        display: none;
+    }
+
+    .profile-dropdown.show { display: block; }
+
+    .profile-dropdown .dropdown-header {
+        padding: 12px 16px;
+        border-bottom: 1px solid #f3f4f6;
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+    .profile-dropdown a {
+        display: block;
+        padding: 10px 16px;
+        text-decoration: none;
+        color: #111827;
+        font-size: 14px;
+    }
+
+    .profile-dropdown a:hover { background: #f9fafb; }
+</style>
+
+{% if logged_in %}
+<div class="user-profile-container" id="userProfileMenu">
+    <div class="profile-circle" id="profileToggle" title="{{ username }}" aria-haspopup="true" aria-expanded="false">
+        {{ username[0]|upper }}
+    </div>
+    <div class="profile-dropdown" id="profileDropdown" role="menu" aria-hidden="true">
+        <div class="dropdown-header">Signed in as <strong>{{ username }}</strong></div>
+        <a href="/profile/view_profile" role="menuitem">My Profile</a>
+        <a href="/profile/profile" role="menuitem">Edit Profile</a>
+        <a href="{{ url_for('logout') }}" role="menuitem">Log out</a>
+    </div>
+    
+</div>
+{% endif %}
+
+<div class="dash-header">
+    <h1>Welcome, {{ username }}</h1>
+    <p class="dash-sub">Pick a planner to get started with <strong>{{ APP_NAME }}</strong>.</p>
+</div>
+
+<div class="grid">
+    <a class="tile" href="{{ url_for('planner_router', key='expense') }}">
+  <h3><span class="emoji">💸</span>Expense & Budget Analyzer</h3>
+  <p>Track spending and set smart budgets.</p>
+</a>
+
+
+    <a class="tile" href="{{ url_for('planner_router', key='investment') }}">
+        <h3><span class="emoji">📈</span>Investment Planner</h3>
+        <p>Asset Planner.</p>
+    </a>
+
+    <a class="tile" href="{{ url_for('planner_router', key='debt') }}">
+        <h3><span class="emoji">🧮</span>Debt Management</h3>
+        <p>Snowball/avalanche payoff plans.</p>
+    </a>
+
+    <a class="tile" href="{{ url_for('mortgage.mortgage_page') }}">
+        <h3><span class="emoji">🏡</span>Real-estate / Mortgage Advisor</h3>
+        <p>EMI & affordability.</p>
+    </a>
+
+    <a class="tile" href="{{ url_for('planner_router', key='carloan') }}">
+        <h3><span class="emoji">🚗</span>Car-loan Planner</h3>
+        <p>Compare terms & interest.</p>
+    </a>
+
+    <a class="tile" href="{{ url_for('planner_router', key='retirement') }}">
+        <h3><span class="emoji">🧓</span>Retirement Goal Planner</h3>
+        <p>monthly Planner</p>
+    </a>
+
+    <a class="tile" href="{{ url_for('planner_router', key='insurance') }}">
+        <h3><span class="emoji">🛡️</span>Insurance & Risk Advisor</h3>
+        <p> premium checks.</p>
+    </a>
+
+    <a class="tile" href="{{ url_for('planner_router', key='tax') }}">
+        <h3><span class="emoji">🧾</span>Tax Recommender</h3>
+        <p>Deductions & Planning.</p>
+    </a>
+</div>
+
+<script>
+    (function () {
+        var toggle = document.getElementById('profileToggle');
+        var dropdown = document.getElementById('profileDropdown');
+        if (!toggle || !dropdown) return;
+
+        function closeDropdown() {
+            dropdown.classList.remove('show');
+            toggle.setAttribute('aria-expanded', 'false');
+            dropdown.setAttribute('aria-hidden', 'true');
+        }
+
+        function openDropdown() {
+            dropdown.classList.add('show');
+            toggle.setAttribute('aria-expanded', 'true');
+            dropdown.setAttribute('aria-hidden', 'false');
+        }
+
+        toggle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (dropdown.classList.contains('show')) {
+                closeDropdown();
+            } else {
+                openDropdown();
+            }
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!dropdown.classList.contains('show')) return;
+            var container = document.getElementById('userProfileMenu');
+            if (container && !container.contains(e.target)) {
+                closeDropdown();
+            } else if (e.target === toggle) {
+                // handled in toggle
+            } else if (!dropdown.contains(e.target)) {
+                closeDropdown();
+            }
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeDropdown();
+            }
+        });
+    })();
+</script>
+{% endblock %}
