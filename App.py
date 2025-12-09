@@ -19,6 +19,7 @@ from flask import (
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 from pymongo import MongoClient
+from pymongo.errors import DuplicateKeyError
 import pandas as pd
 import csv
 
@@ -151,7 +152,8 @@ def register():
         except errors.DuplicateKeyError as e:
             # Which unique field collided?
             flash("User already exists, please log in.", "error")
-        return render_template("register.html", error="User already exists")
+            return render_template("register.html", error="User already exists")
+        return redirect(url_for("login"))
 
     # GET -> show form
     return render_template("register.html", title="Create account")
