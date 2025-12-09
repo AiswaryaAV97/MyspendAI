@@ -76,6 +76,6 @@ psutil==5.9.8
 gunicorn==21.2.0
 yfinance
 pinecone
-
+pdfplumber
 
 
