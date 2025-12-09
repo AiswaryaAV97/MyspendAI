@@ -13,7 +13,7 @@ from datetime import datetime
 # ----------------------------------------
 # MongoDB Setup (same style as Insurance)
 # ----------------------------------------
-MONGO_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017/")
+MONGO_URI = os.getenv("MONGODB_URI")
 client = MongoClient(MONGO_URI)
 db_mongo = client["SmartSpendAI"]
 
@@ -44,7 +44,7 @@ def tax_planner():
     profile = load_user_profile_from_db(db, user_id)
     estimate = None
     advice = None
-    account_recommendations = None   # 👈 initialise
+    account_recommendations = None   
 
     if request.method == "POST":
         # Override profile from form fields
@@ -167,7 +167,7 @@ def api_tax_estimate():
         "estimate": estimate,
     })
 
-
+'''
 @bp.route("/api/tax/recommend", methods=["POST"])
 def api_tax_recommend():
     """
@@ -305,3 +305,4 @@ In 4–7 bullet points:
             "AI advice is temporarily unavailable (local LLM error). "
             f"Technical details: {e}"
         )
+    '''
