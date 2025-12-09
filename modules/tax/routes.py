@@ -86,12 +86,12 @@ def tax_planner():
         #  build FHSA / RRSP / TFSA recommendations
         account_recommendations = suggest_account_contributions(profile, estimate)
 
-        #  LLM advice 
+        '''#  LLM advice 
         try:
             advice = generate_llm_advice(profile, estimate)
         except Exception as e:
             advice = f"Could not generate AI advice: {e}"
-
+            '''
         # ----------------------------------------
         # Save tax results to MongoDB  (FIXED INDENTATION)
         # ----------------------------------------
