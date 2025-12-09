@@ -146,17 +146,18 @@ def register():
         # 3) insert and handle duplicates
         try:
             users_collection.insert_one(doc)
-            flash("Account created. Please log in.", "success")
-            return redirect(url_for("profile"))
-
-        except errors.DuplicateKeyError as e:
-            # Which unique field collided?
+        except DuplicateKeyError:
+            # username already exists (Mongo has a unique index on username)
             flash("User already exists, please log in.", "error")
             return render_template("register.html", error="User already exists")
+
+        # success – send user to login (or profile if you really want)
+        flash("Account created. Please log in.", "success")
         return redirect(url_for("login"))
 
     # GET -> show form
     return render_template("register.html", title="Create account")
+
 
 
 @app.route("/login", methods=["GET", "POST"])
