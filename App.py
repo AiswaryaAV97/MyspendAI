@@ -150,20 +150,8 @@ def register():
 
         except errors.DuplicateKeyError as e:
             # Which unique field collided?
-            msg = "That username or email is already in use."
-            s = str(e).lower()
-            if "username" in s:
-                msg = "That username is already in use."
-            elif "email" in s:
-                msg = "That email is already in use."
-            flash(msg, "error")
-            return redirect(url_for("register"))
-
-        except Exception as e:
-            # Log for yourself; show friendly message to user
-            print("Register error:", e)
-            flash("Something went wrong. Please try again.", "error")
-            return redirect(url_for("register"))
+            flash("User already exists, please log in.", "error")
+        return render_template("register.html", error="User already exists")
 
     # GET -> show form
     return render_template("register.html", title="Create account")
