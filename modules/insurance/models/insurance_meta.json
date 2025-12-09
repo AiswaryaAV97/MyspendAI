@@ -1,0 +1,30 @@
+{
+  "feature_columns": [
+    "age",
+    "dependents",
+    "annual_income",
+    "assets",
+    "liabilities",
+    "bmi",
+    "bp_sys",
+    "cholesterol",
+    "smoker",
+    "alcohol",
+    "gender",
+    "marital_status",
+    "exercise",
+    "risk_tolerance",
+    "province"
+  ],
+  "coverage_targets": [
+    "life_cov",
+    "health_cov",
+    "disability_cov",
+    "property_cov"
+  ],
+  "risk_classes": [
+    "Low",
+    "Medium",
+    "High"
+  ]
+}

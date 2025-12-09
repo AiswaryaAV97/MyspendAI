@@ -1,0 +1,10 @@
+{
+    "categorical": [
+        "gender",
+        "marital_status",
+        "lifestyle"
+    ],
+    "numerical": [
+        "age"
+    ]
+}

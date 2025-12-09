@@ -1,0 +1,12 @@
+type,base_coverage,base_premium,age_factor,risk_factor
+Life Insurance,100000,350,0.015,0.25
+Critical Illness,75000,300,0.020,0.30
+Disability Insurance,60000,420,0.010,0.20
+Health Insurance,3000,720,0.005,0.10
+Dental Insurance,1500,250,0.002,0.05
+Home Insurance,250000,1100,0.003,0.15
+Tenant Insurance,40000,240,0.001,0.10
+Auto Insurance,1000000,1200,0.004,0.18
+Travel Insurance,1000000,180,0.020,0.10
+Mortgage Protection,200000,350,0.015,0.20
+Long-Term Care,1500,900,0.030,0.18
